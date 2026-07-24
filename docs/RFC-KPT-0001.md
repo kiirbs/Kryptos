@@ -13,34 +13,44 @@ Définir le format des fichiers `.kpt`.
 
 ---
 
+## Principes de conception
+
+- Format extensible
+- Header minimal
+- Chunks indépendants
+- Aucune information redondante
+- Compatibilité ascendante
+
+---
+
 ## Structure
 
 ### Générale
 
 | Block | Taille | Description | Statut |
 |-------|--------|-------------|--------|
-| Header | 16o | Parcourir le fichier | 🟢 Validé |
+| Header | 8o | Parcourir le fichier | 🟢 Validé | 
 | Métadonnées | Variable | Informations complémentaires | 🟡 À définir |
 | Données chiffrées | Variable | Contenu du fichier | 🟢 Validé |
 | Hash | Variable | Vérification d'intégrité | 🟡 À définir |
 
 ### Header
 
-| Champ | Taille | Description | Statut |
-|-------|--------|-------------|--------|
-| Magic Number | 4o | Identifiant du format | 🟢 Validé |
-| Version | 1o | Version logiciel | 🟢 Validé |
-| Algorithme | 1o | Algorithme utilisé | 🟢 Validé |
-| Flags | 1o | Huit flags | 🟡 À définir |
-| Réservé | 1o | Emplacement réservé | 🟢 Validé |
+| Champ | Taille | Description | Statut | Endianness |
+|-------|--------|-------------|--------|------------|
+| Magic Number | 4o | Identifiant du format | 🟢 Validé | Oui |
+| Version | 1o | Version logiciel | 🟢 Validé | Non |
+| Header Size | 1o | Taille du header | 🟢 Validé | Non |
+| Algorithme | 1o | Algorithme utilisé | 🟢 Validé | Non |
+| Flags | 1o | Huit flags | 🟡 À définir | Non |
 
 ### Chunk
 
-| Champ | Taille | Description | Statut |
-|-------|--------|-------------|--------|
-| Chunk Type | 1o | Nom du block en numérique | 🟢 Validé |
-| Chunk Size | 8o | Taille du block | 🟢 Validé |
-| Contenu | Variable | Contenu du block | 🟢 Validé |
+| Champ | Taille | Description | Statut | Endianness |
+|-------|--------|-------------|--------|------------|
+| Chunk Type | 1o | Identifiant numérique du chunk | 🟢 Validé | Non |
+| Chunk Size | 8o | Taille du block | 🟢 Validé | Oui |
+| Contenu | Variable | Contenu du block | 🟢 Validé | Oui |
 
 ---
 
@@ -73,6 +83,11 @@ Définir le format des fichiers `.kpt`.
         - Extensible
         - Responsabilité unique
         - Simple
+
+- Implementation en Big Endian
+    - Lisible
+    - Simple
+    - Souvent utilisé
 
 ---
 

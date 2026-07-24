@@ -11,6 +11,7 @@
 - Chiffrement avec XOR
 - Conception de format
 - Conteneur binaire orienté blocs
+- Endianness
 
 ### Décisions prises
 
