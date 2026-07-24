@@ -24,8 +24,6 @@ Définir le format des fichiers `.kpt`.
 | Données chiffrées | Variable | Contenu du fichier | 🟢 Validé |
 | Hash | Variable | Vérification d'intégrité | 🟡 À définir |
 
----
-
 ### Header
 
 | Champ | Taille | Description | Statut |
@@ -35,8 +33,6 @@ Définir le format des fichiers `.kpt`.
 | Algorithme | 1o | Algorithme utilisé | 🟢 Validé |
 | Flags | 1o | Huit flags | 🟡 À définir |
 | Réservé | 1o | Emplacement réservé | 🟢 Validé |
-
----
 
 ### Chunk
 
