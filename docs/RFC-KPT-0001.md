@@ -21,7 +21,6 @@ Définir le format des fichiers `.kpt`.
 | Métadonnées | Variable | Informations complémentaires | 🟡 À définir |
 | Données chiffrées | Variable | Contenu du fichier | 🟢 Validé |
 | Hash | Variable | Vérification d'intégrité | 🟡 À définir |
-+---------------------------------------
 
 ---
 
@@ -34,7 +33,6 @@ Définir le format des fichiers `.kpt`.
 | Algorithme | 1o | Algorithme utilisé | 🟢 Validé |
 | Flags | 1o | Huit flags | 🟡 À définir |
 | Réservé | 1o | Emplacement réservé | 🟢 Validé |
-+---------------------------------------
 
 ---
 
@@ -45,39 +43,38 @@ Définir le format des fichiers `.kpt`.
 | Chunk Type | 1o | Nom du block en numérique | 🟢 Validé |
 | Chunk Size | 8o | Taille du block | 🟢 Validé |
 | Contenu | Variable | Contenu du block | 🟢 Validé |
-+---------------------------------------
 
 ---
 
 ## Décisions
 
 - Header de taille fixe
-    Lecture rapide
-    Compatible avec les futures versions
-    Structure stable
+    - Lecture rapide
+    - Compatible avec les futures versions
+    - Structure stable
 
 - Métadonnées optionnelles
-    Respect de la confidentialité
-    Réduction de la taille des fichiers
-    Flexibilité
+    - Respect de la confidentialité
+    - Réduction de la taille des fichiers
+    - Flexibilité
 
 - Algorithmes représentés par un identifiant numérique
-    Format compact
-    Lecture rapide
-    Extensible
+    - Format compact
+    - Lecture rapide
+    - Extensible
 
 - Le format .kpt est un conteneur binaire orienté blocs
-  Il est composé de :
-    -> Un header fixe de 8 octets
-    -> Une suite de blocs indépendants
-  Chaque bloc possède :
-    -> Un identifiant
-    -> Une taille
-    -> Un contenu
-  Avantages :
-    -> Extensible
-    -> Responsabilité unique
-    -> Simple
+    - Il est composé de :
+        - Un header fixe de 8 octets
+        - Une suite de blocs indépendants
+    - Chaque bloc possède :
+        - Un identifiant
+        - Une taille
+        - Un contenu
+    - Avantages :
+        - Extensible
+        - Responsabilité unique
+        - Simple
 
 ---
 
