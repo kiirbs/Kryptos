@@ -1,6 +1,6 @@
 # Journal Kryptos
 
-## Séance 1
+## Recap
 
 ### Ce que j'ai appris
 
@@ -10,13 +10,13 @@
 - Les formats de fichiers contiennent des métadonnées.
 - Chiffrement avec XOR
 - Conception de format
-- Conteneur binaire par block
+- Conteneur binaire orienté blocs
 
 ### Décisions prises
 
 - Le projet utilisera Git.
 - Une RFC décrira le format `.kpt`.
-- Le format `.kpt` sera un conteneur binaire en block avec un header de 8o
+- Le format `.kpt` sera un conteneur binaire orienté blocs avec un header de 8 octets
 
 ### Questions restantes
 

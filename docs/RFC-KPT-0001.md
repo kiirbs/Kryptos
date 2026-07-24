@@ -13,7 +13,9 @@ Définir le format des fichiers `.kpt`.
 
 ---
 
-## Structure générale
+## Structure
+
+### Générale
 
 | Block | Taille | Description | Statut |
 |-------|--------|-------------|--------|
@@ -24,7 +26,7 @@ Définir le format des fichiers `.kpt`.
 
 ---
 
-## Structure header
+### Header
 
 | Champ | Taille | Description | Statut |
 |-------|--------|-------------|--------|
@@ -36,7 +38,7 @@ Définir le format des fichiers `.kpt`.
 
 ---
 
-## Structure chunk
+### Chunk
 
 | Champ | Taille | Description | Statut |
 |-------|--------|-------------|--------|
@@ -63,7 +65,7 @@ Définir le format des fichiers `.kpt`.
     - Lecture rapide
     - Extensible
 
-- Le format .kpt est un conteneur binaire orienté blocs
+- Le format `.kpt` est un conteneur binaire orienté blocs
     - Il est composé de :
         - Un header fixe de 8 octets
         - Une suite de blocs indépendants
