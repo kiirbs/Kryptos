@@ -23,6 +23,7 @@ Définir le format des fichiers `.kpt`.
 - Séparation des responsabilités
 - Compatibilité descendante lorsque possible
 - Éviter les informations déductibles
+- Les objets représentent les concepts de la spécification
 
 ---
 
