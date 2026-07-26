@@ -1,5 +1,5 @@
-from chunk import Chunk
-from chunk_type import ChunkType
+from kryptos.chunk import Chunk
+from kryptos.enums import ChunkType
         
 chunk = Chunk(ChunkType.DATA, b"Hi")
 

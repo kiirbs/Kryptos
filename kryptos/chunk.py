@@ -1,4 +1,4 @@
-from chunk_type import ChunkType
+from kryptos.enums import ChunkType
 
 class Chunk:
 
@@ -15,3 +15,11 @@ class Chunk:
         chunk_size = self.size().to_bytes(8, "big")
 
         return chunk_type + chunk_size + self.content
+    
+    def __repr__(self):
+        return (
+            f"Chunk(\n"
+            f"    type={self.chunk_type.name}\n"
+            f"    size={self.size()}\n"
+            f")"
+        )
