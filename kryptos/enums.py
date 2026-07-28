@@ -3,6 +3,9 @@ from enum import Enum
 HEADER_SIZE = 8
 DEFAULT_FLAGS = 0
 
+CHUNK_TYPE_SIZE = 1
+CHUNK_SIZE_FIELD_SIZE = 8
+
 class ChunkType(Enum):
     METADATA = 0x01
     DATA = 0x02

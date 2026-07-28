@@ -112,17 +112,17 @@ Définir le format des fichiers `.kpt`.
 
 ## Hiérarchie
 
-Fichier KPT
-│
-├── Header (bootstrap)
-│
-└── Chunks
-    │
-    ├── Metadata
-    │   └── Fields
-    │
-    ├── Data
-    │
+Fichier KPT<br>
+│<br>
+├── Header (bootstrap)<br>
+│<br>
+└── Chunks<br>
+    │<br>
+    ├── Metadata<br>
+    │   └── Fields<br>
+    │<br>
+    ├── Data<br>
+    │<br>
     └── Hash
 
 ---

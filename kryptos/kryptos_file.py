@@ -45,8 +45,9 @@ class KryptosFile:
         )
         
     def serialize(self) -> bytes:
+        
         if not self.validate():
-            raise ValueError("File is not valide.")
+            raise ValueError("Invalid file.")
             
         result = enums.MagicNumber.KPT1.value
         result += enums.Version.V1.value.to_bytes(1, "big")
