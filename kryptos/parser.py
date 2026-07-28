@@ -17,31 +17,41 @@ class KryptosParser:
         algo = data[6]
         flags = data[7]
         
+        if header_size != 8:
+            raise ValueError("Invalid header size.")
+        
         magic = enums.MagicNumber(magic)
         version = enums.Version(version)
         algo = enums.Algo(algo)
         
         return Header(magic, version, header_size, algo, flags)
     
-    def _read_chunks(self, cursor, kryptos_file: KryptosFile, data: bytes):
+    def _read_chunk(self, data: bytes, cursor) -> Chunk:
+        
+        type_start = cursor
+        size_start = type_start + enums.CHUNK_TYPE_SIZE
+        content_start = size_start + enums.CHUNK_SIZE_FIELD_SIZE
+        
+        chunk_type = data[type_start]
+        chunk_type = enums.ChunkType(chunk_type)
+            
+        content_size = data[size_start:content_start]
+        content_size = int.from_bytes(content_size, "big")
+            
+        content = data[content_start:(content_start+content_size)]
+        
+        return Chunk(chunk_type, content)
+        
+    def _add_chunks(self, cursor, kryptos_file: KryptosFile, data: bytes):
                 
         while cursor < len(data):
             
-            type_start = cursor
-            size_start = type_start + enums.CHUNK_TYPE_SIZE
-            content_start = size_start + enums.CHUNK_SIZE_FIELD_SIZE
+            chunk = self._read_chunk(data, cursor)
             
-            chunk_type = data[type_start]
-            chunk_type = enums.ChunkType(chunk_type)
+            kryptos_file.add_chunk(chunk)
             
-            content_size = data[size_start:content_start]
-            content_size = int.from_bytes(content_size, "big")
-            
-            content = data[content_start:(content_start+content_size)]
-            
-            kryptos_file.add_chunk(Chunk(chunk_type, content))
-            
-            cursor = content_start + content_size
+            chunk_size = enums.CHUNK_TYPE_SIZE + enums.CHUNK_SIZE_FIELD_SIZE + chunk.size()
+            cursor += chunk_size
         
     def parse(self, data: bytes) -> KryptosFile:
         
@@ -51,9 +61,10 @@ class KryptosParser:
         
         kryptos_file = KryptosFile()
         
-        self._read_chunks(cursor, kryptos_file, data)
+        self._add_chunks(cursor, kryptos_file, data)
         
-        kryptos_file.validate()
+        if not kryptos_file.validate():
+            raise ValueError("Invalid file.")
         
         return kryptos_file
     
