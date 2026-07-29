@@ -112,18 +112,40 @@ Définir le format des fichiers `.kpt`.
 
 ## Hiérarchie
 
-Fichier KPT<br>
-│<br>
-├── Header (bootstrap)<br>
-│<br>
-└── Chunks<br>
-    │<br>
-    ├── Metadata<br>
-    │   └── Fields<br>
-    │<br>
-    ├── Data<br>
-    │<br>
+```text
++------------------+
+| Header           |
++------------------+
+| Metadata Chunk   |
++------------------+
+| Data Chunk       |
++------------------+
+| Hash Chunk       |
++------------------+
+```
+
+```text
+Chunk
+
++------+----------+-----------+
+| Type | Size (8) | Content   |
++------+----------+-----------+
+```
+
+```text
+Fichier KPT
+│
+├── Header (bootstrap)
+│
+└── Chunks
+    │
+    ├── Metadata
+    │   └── Fields
+    │
+    ├── Data
+    │
     └── Hash
+```
 
 ---
 

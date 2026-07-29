@@ -4,14 +4,18 @@ from kryptos.chunk import Chunk
 from kryptos import enums
 
 class KryptosFile:
+    """Represents a Kryptos file."""
     
     def __init__(self):
         self.chunks = []
     
     def add_chunk(self, chunk: Chunk):
+        """Add a chunk to the file."""
+        
         self.chunks.append(chunk)
         
     def get_chunk(self, chunk_type: enums.ChunkType) -> Optional[Chunk]:
+        """Find the chunk with the corresponding type."""
         
         for chunk in self.chunks:
             if chunk.chunk_type == chunk_type:
@@ -45,6 +49,7 @@ class KryptosFile:
         )
         
     def serialize(self) -> bytes:
+        """Serialize the complete Kryptos file."""
         
         if not self.validate():
             raise ValueError("Invalid file.")

@@ -2,15 +2,17 @@ from kryptos.kryptos_file import KryptosFile
 from kryptos.header import Header
 from kryptos.chunk import Chunk
 from kryptos import enums
+from kryptos import exceptions
 
 class KryptosParser:
+    """Represente the parser."""
     
     def _read_header(self, data: bytes) -> Header:
         
         magic = data[0:4]
         
         if magic != enums.MagicNumber.KPT1.value:
-            raise ValueError("Invalid magic number.")
+            raise exceptions.InvalidMagicNumberError()
         
         version = data[4]
         header_size = data[5]
@@ -54,6 +56,7 @@ class KryptosParser:
             cursor += chunk_size
         
     def parse(self, data: bytes) -> KryptosFile:
+        """Parses binary data into a KryptosFile."""
         
         header = self._read_header(data)
         

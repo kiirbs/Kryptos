@@ -1,6 +1,7 @@
 from kryptos.enums import ChunkType
 
 class Chunk:
+    """Represents a single chunk inside a Kryptos file."""
 
     def __init__(self, chunk_type: ChunkType, content: bytes):
         
@@ -8,9 +9,13 @@ class Chunk:
         self.content = content
         
     def size(self):
+        """Return the size of the chunk content."""
+        
         return len(self.content)
         
-    def serialize(self) -> bytes:    
+    def serialize(self) -> bytes:
+        """Serialize the chunk into its binary representation."""
+        
         chunk_type = self.chunk_type.value.to_bytes(1, "big")
         chunk_size = self.size().to_bytes(8, "big")
 

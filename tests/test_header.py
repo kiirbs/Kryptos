@@ -1,7 +1,11 @@
 import unittest
 
 from kryptos.parser import KryptosParser
+from kryptos import exceptions
 
+"""
+Unit tests for the Kryptos header.
+"""
 class TestHeader(unittest.TestCase):
     
     def setUp(self):
@@ -21,7 +25,7 @@ class TestHeader(unittest.TestCase):
         
         data = self._create_header(magic=b"ABCD")
                 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(exceptions.InvalidMagicNumberError):
             self.parser.parse(data)
             
     def test_invalid_version(self):

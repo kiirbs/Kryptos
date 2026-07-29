@@ -5,6 +5,10 @@ from kryptos.kryptos_file import KryptosFile
 from kryptos.chunk import Chunk
 from kryptos import enums
 
+"""
+Unit tests for the Kryptos parser.
+"""
+
 class TestParser(unittest.TestCase):
     
     def setUp(self):

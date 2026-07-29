@@ -1,4 +1,5 @@
 class Header:
+    """Represents a Kryptos file header."""
     
     def __init__(
         self, 
