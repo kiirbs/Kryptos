@@ -192,9 +192,12 @@ KryptosFile
 │ `Header` │ Used to open and view the file properly. │
 │ `Chunk` │ Represents a single chunk. Stores a `ChunksType` value. │
 │ `ChunksType` │ Define differents types of chunks. │
-│ `FieldType` │ Defines a metadata field. Stores its identifier, expected Python type and serialization/deserialization rules. │
-│ `Field` │ Represents a single metadata entry. Stores a `FieldType` and its associated value. Validates the value and delegates serialization to the `FieldType`. │
-│ `MetadataChunk` │ Stores all metadata fields of a Kryptos file. Guarantees uniqueness of each `FieldType` and provides access, serialization and size computation. │
+│ `FieldType` │ Defines a metadata field. Stores its identifier, │
+│ │ expected Python type and serialization/deserialization rules. │
+│ `Field` │ Represents a single metadata entry. Stores a `FieldType` and its associated value. │
+│ │ Validates the value and delegates serialization to the `FieldType`. │
+│ `MetadataChunk` │ Stores all metadata fields of a Kryptos file. │
+│ │ Guarantees uniqueness of each `FieldType` and provides access, serialization and size computation. │
 
 ---
 
