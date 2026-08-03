@@ -5,6 +5,9 @@ class Chunk:
 
     def __init__(self, chunk_type: ChunkType, content: bytes):
         
+        if not isinstance(content, bytes):
+            raise TypeError("Chunk content must be bytes.")
+        
         self.chunk_type = chunk_type
         self.content = content
         

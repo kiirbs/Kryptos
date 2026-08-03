@@ -112,13 +112,13 @@ Define the format of `.kpt` files.
 | 0x02 | Encrypted data |
 | 0x03 | Hash |
 
-| ID | Field Type | Type | Description |
-|----|------------|------|-------------|
-| 0x01 | Original Filename | `char` | Restore the original name |
-| 0x02 | MIME Type | `char` | Knowing what type of file you're decrypting |
-| 0x03 | Creation Timestamp | `datetime` | Keep the creation date |
-| 0x04 | Original File Size | `int` | Verification and Restoration |
-| 0x05 | Comment | `char` | Leave an optional note |
+| ID | Field Type | Type | Binary Repr | Serializer |
+|----|------------|------|-------------|------------|
+| 0x01 | Original Filename | `char` | UTF-8 | StringSerializer |
+| 0x02 | MIME Type | `char` | UTF-8 | StringSerializer |
+| 0x03 | Creation Timestamp | `datetime` | Unix timestamp (UInt64) | DatetimeSerializer |
+| 0x04 | Original File Size | `int` | UInt64 | IntSerializer |
+| 0x05 | Comment | `char` | UTF-8 | StringSerializer |
 
 ---
 
@@ -193,11 +193,11 @@ KryptosFile
 │ `Chunk` │ Represents a single chunk. Stores a `ChunksType` value. │
 │ `ChunksType` │ Define differents types of chunks. │
 │ `FieldType` │ Defines a metadata field. Stores its identifier, │
-│ │ expected Python type and serialization/deserialization rules. │
+│  │ expected Python type and serialization/deserialization rules. │
 │ `Field` │ Represents a single metadata entry. Stores a `FieldType` and its associated value. │
-│ │ Validates the value and delegates serialization to the `FieldType`. │
+│  │ Validates the value and delegates serialization to the `FieldType`. │
 │ `MetadataChunk` │ Stores all metadata fields of a Kryptos file. │
-│ │ Guarantees uniqueness of each `FieldType` and provides access, serialization and size computation. │
+│  │ Guarantees uniqueness of each `FieldType` and provides access, serialization and size computation. │
 
 ---
 

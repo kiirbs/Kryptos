@@ -1,12 +1,5 @@
-from kryptos.chunk import Chunk
-from kryptos.enums import ChunkType
+from kryptos.field import Field
+from kryptos.enums import FieldType
         
-chunk = Chunk(ChunkType.DATA, b"Hi")
-
-print(ChunkType.DATA)
-print(ChunkType.DATA.value)
-print(ChunkType.DATA.name)
-
-print(chunk.chunk_type)
-
-print(chunk.content)
+field = Field(FieldType.ORIGINAL_FILENAME, "hello.txt")
+print(field.serialize())
