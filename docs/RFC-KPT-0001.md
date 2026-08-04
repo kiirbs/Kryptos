@@ -1,7 +1,7 @@
 # RFC-KPT-0001
-## Format de fichier Kryptos
+## Kryptos file format
 
-### Statut
+### State
 
 Draft
 
@@ -187,17 +187,32 @@ KryptosFile
 
 ### Reference Components
 
-│ Component │ Responsibilitie │
-│-----------│-----------------│
-│ `Header` │ Used to open and view the file properly. │
-│ `Chunk` │ Represents a single chunk. Stores a `ChunksType` value. │
-│ `ChunksType` │ Define differents types of chunks. │
-│ `FieldType` │ Defines a metadata field. Stores its identifier, │
-│  │ expected Python type and serialization/deserialization rules. │
-│ `Field` │ Represents a single metadata entry. Stores a `FieldType` and its associated value. │
-│  │ Validates the value and delegates serialization to the `FieldType`. │
-│ `MetadataChunk` │ Stores all metadata fields of a Kryptos file. │
-│  │ Guarantees uniqueness of each `FieldType` and provides access, serialization and size computation. │
+- **`Header`**
+  - Used to open and validate a Kryptos file.
+
+- **`Chunk`**
+  - Represents a single chunk.
+  - Stores a `ChunkType`.
+
+- **`ChunkType`**
+  - Defines the different chunk types.
+
+- **`FieldType`**
+  - Defines a metadata field.
+  - Stores its identifier.
+  - Defines the expected Python type.
+  - Handles serialization and deserialization.
+
+- **`Field`**
+  - Represents a metadata entry.
+  - Stores a `FieldType` and its value.
+  - Validates the value.
+  - Delegates serialization to its `FieldType`.
+
+- **`MetadataChunk`**
+  - Stores all metadata fields.
+  - Guarantees uniqueness of each `FieldType`.
+  - Provides lookup, serialization, and size computation.
 
 ---
 
