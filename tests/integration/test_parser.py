@@ -91,59 +91,61 @@ class TestParser(unittest.TestCase):
         
     def test_unknow_chunk_type(self):
         
+        valid_header = self._create_header()
+        valid_chunks = self._build_chunks()
+            
+        fake_id = (0x99).to_bytes(1, "big")
+        fake_size = (0x00).to_bytes(8, "big")
+            
+        fake_chunk = fake_id + fake_size
+            
+        invalid_file = valid_header + fake_chunk + valid_chunks
+        
         with self.assertRaises(ValueError):
-            
-            valid_header = self._create_header()
-            valid_chunks = self._build_chunks()
-            
-            fake_id = (0x99).to_bytes(1, "big")
-            fake_size = (0x00).to_bytes(8, "big")
-            
-            fake_chunk = fake_id + fake_size
-            
-            invalid_file = valid_header + fake_chunk + valid_chunks
-            
             self.parser.parse(invalid_file)
         
     def test_duplicate_data(self):
         
+        valid_header = self._create_header()
+        invalid_chunks = self._build_chunks(
+            chunks=[
+                Chunk(enums.ChunkType.DATA, b"Hello !"),
+                Chunk(enums.ChunkType.DATA, b"Hello !"),
+                Chunk(enums.ChunkType.HASH, b"")
+            ]
+        )
+        invalid_file = valid_header + invalid_chunks
+        
         with self.assertRaises(ValueError):
-            valid_header = self._create_header()
-            invalid_chunks = self._build_chunks(
-                chunks=[
-                    Chunk(enums.ChunkType.DATA, b"Hello !"),
-                    Chunk(enums.ChunkType.DATA, b"Hello !"),
-                    Chunk(enums.ChunkType.HASH, b"")
-                ]
-            )
-            invalid_file = valid_header + invalid_chunks
             self.parser.parse(invalid_file)
             
     
     def test_duplicate_metadata(self):
         
+        valid_header = self._create_header()
+        invalid_chunks = self._build_chunks(
+            chunks=[
+                Chunk(enums.ChunkType.METADATA, b""),
+                Chunk(enums.ChunkType.METADATA, b""),
+                Chunk(enums.ChunkType.DATA, b"Hello !"),
+                Chunk(enums.ChunkType.HASH, b"")
+            ]
+        )
+        invalid_file = valid_header + invalid_chunks
+        
         with self.assertRaises(ValueError):
-            valid_header = self._create_header()
-            invalid_chunks = self._build_chunks(
-                chunks=[
-                    Chunk(enums.ChunkType.METADATA, b""),
-                    Chunk(enums.ChunkType.METADATA, b""),
-                    Chunk(enums.ChunkType.DATA, b"Hello !"),
-                    Chunk(enums.ChunkType.HASH, b"")
-                ]
-            )
-            invalid_file = valid_header + invalid_chunks
             self.parser.parse(invalid_file)
             
     def test_missing_hash(self):
         
+        valid_header = self._create_header()
+        invalid_chunks = self._build_chunks(
+            chunks=[
+                Chunk(enums.ChunkType.METADATA, b""),
+                Chunk(enums.ChunkType.DATA, b"Hello !")
+            ]
+        )
+        invalid_file = valid_header + invalid_chunks
+        
         with self.assertRaises(ValueError):
-            valid_header = self._create_header()
-            invalid_chunks = self._build_chunks(
-                chunks=[
-                    Chunk(enums.ChunkType.METADATA, b""),
-                    Chunk(enums.ChunkType.DATA, b"Hello !")
-                ]
-            )
-            invalid_file = valid_header + invalid_chunks
             self.parser.parse(invalid_file)

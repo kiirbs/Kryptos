@@ -45,7 +45,7 @@ See the [RFC-KPT-0001](docs/RFC-KPT-0001.md) for the complete file format specif
 
 ## Tests
 
-`python3 -m unittest`
+`python3 -m unittest discover tests`
 
 ---
 

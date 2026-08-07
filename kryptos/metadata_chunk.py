@@ -26,6 +26,11 @@ class MetadataChunk(Chunk):
         
         return self.fields.get(field_type)
     
+    def size(self):
+        """Return the size of the metadata chunk content."""
+        
+        return sum(field.size() for field in self.fields.values())
+    
     def serialize(self) -> bytes:
         """Serialize the complete metadata chunk."""
         

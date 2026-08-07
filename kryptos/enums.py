@@ -7,6 +7,9 @@ DEFAULT_FLAGS = 0
 CHUNK_TYPE_SIZE = 1
 CHUNK_SIZE_FIELD_SIZE = 8
 
+FIELD_TYPE_SIZE = 1
+FIELD_SIZE_FIELD_SIZE = 8
+
 class ChunkType(Enum):
     METADATA = 0x01
     DATA = 0x02
@@ -22,6 +25,17 @@ class FieldType(Enum):
     def __init__(self, field_id, python_type):
         self.field_id = field_id
         self.python_type = python_type
+        
+    @classmethod
+    def from_field_id(cls, field_id):
+        
+        for field_type in cls:
+            if field_type.field_id == field_id:
+                return field_type
+            
+        raise ValueError(
+            f"Unknown field ID: {field_id:#04x}."
+        )
     
 class Version(Enum):
     V1 = 0x01

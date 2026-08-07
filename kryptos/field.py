@@ -27,6 +27,11 @@ class Field:
         
         return field_type + field_size + data
     
+    def size(self): 
+        """Return the size of the field."""
+               
+        return len(self.serialize())
+    
     def __repr__(self):
         return (
             f"Field(\n"
