@@ -55,8 +55,9 @@ class TestMetadataChunk(unittest.TestCase):
     
     def test_duplicate_field(self):
         
+        self.metadata.add_field(self._create_valid_field())
+        
         with self.assertRaises(ValueError):
-            self.metadata.add_field(self._create_valid_field())
             self.metadata.add_field(self._create_valid_field())
     
     def test_get_field(self):

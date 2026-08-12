@@ -128,5 +128,3 @@ class KryptosParser:
             raise ValueError("Invalid file.")
         
         return kryptos_file
-    
-    

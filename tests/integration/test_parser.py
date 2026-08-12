@@ -25,6 +25,22 @@ class TestParser(unittest.TestCase):
     ) -> bytes:
         return magic + bytes([version, header_size, algo, flags])
     
+    def _build_field(
+        self,
+        metadata_chunk_id=(0x01).to_bytes(1, "big"),
+        metadata_chunk_size=(0x06).to_bytes(8, "big"),
+        field_id=(0x01).to_bytes(1, "big"),
+        field_size=(0x04).to_bytes(8, "big"),
+        field_value=b"h.txt"
+    ):
+        return (
+            metadata_chunk_id
+            + metadata_chunk_size
+            + field_id
+            + field_size
+            + field_value
+        )
+    
     def _build_chunks(self, chunks=None) -> bytes:
         
         if chunks is None:
@@ -36,10 +52,13 @@ class TestParser(unittest.TestCase):
                 
         data = b""
         
-        for chunk in chunks:
+        for chunk in chunks:    
             data += chunk.serialize()
         
         return data
+    
+    def _build_file(self, header, chunks):
+        return header + chunks
     
     def test_invalid_magic_number(self):
         
@@ -74,7 +93,7 @@ class TestParser(unittest.TestCase):
         valid_header = self._create_header()
         valid_chunks = self._build_chunks()
         
-        valid_file = valid_header + valid_chunks
+        valid_file = self._build_file(valid_header, valid_chunks)
         
         parsed = self.parser.parse(valid_file)
         
@@ -89,7 +108,7 @@ class TestParser(unittest.TestCase):
             b"Hello !"
         )
         
-    def test_unknow_chunk_type(self):
+    def test_unknown_chunk_type(self):
         
         valid_header = self._create_header()
         valid_chunks = self._build_chunks()
@@ -99,7 +118,7 @@ class TestParser(unittest.TestCase):
             
         fake_chunk = fake_id + fake_size
             
-        invalid_file = valid_header + fake_chunk + valid_chunks
+        invalid_file = self._build_file(valid_header, fake_chunk + valid_chunks)
         
         with self.assertRaises(ValueError):
             self.parser.parse(invalid_file)
@@ -114,7 +133,7 @@ class TestParser(unittest.TestCase):
                 Chunk(enums.ChunkType.HASH, b"")
             ]
         )
-        invalid_file = valid_header + invalid_chunks
+        invalid_file = self._build_file(valid_header, invalid_chunks)
         
         with self.assertRaises(ValueError):
             self.parser.parse(invalid_file)
@@ -131,7 +150,7 @@ class TestParser(unittest.TestCase):
                 Chunk(enums.ChunkType.HASH, b"")
             ]
         )
-        invalid_file = valid_header + invalid_chunks
+        invalid_file = self._build_file(valid_header, invalid_chunks)
         
         with self.assertRaises(ValueError):
             self.parser.parse(invalid_file)
@@ -145,7 +164,61 @@ class TestParser(unittest.TestCase):
                 Chunk(enums.ChunkType.DATA, b"Hello !")
             ]
         )
-        invalid_file = valid_header + invalid_chunks
+        invalid_file = self._build_file(valid_header, invalid_chunks)
         
         with self.assertRaises(ValueError):
             self.parser.parse(invalid_file)
+    
+    def test_unknown_field_type(self):
+        
+        valid_header = self._create_header()
+        valid_chunks = self._build_chunks(
+            chunks=[
+                Chunk(enums.ChunkType.DATA, b"Hello !"),
+                Chunk(enums.ChunkType.HASH, b"")
+            ]
+        )
+            
+        fake_chunk = self._build_field(field_id=(0x99).to_bytes(1, "big"))
+            
+        invalid_file = self._build_file(valid_header, fake_chunk + valid_chunks)
+        
+        with self.assertRaises(ValueError):
+            self.parser.parse(invalid_file)
+            
+    def test_corrupt_metadata(self):
+        
+        valid_header = self._create_header()
+        valid_chunks = self._build_chunks(
+            chunks=[
+                Chunk(enums.ChunkType.DATA, b"Hello !"),
+                Chunk(enums.ChunkType.HASH, b"")
+            ]
+        )
+            
+        fake_chunk = self._build_field(field_size=(0x00).to_bytes(8, "big"))
+            
+        invalid_file = self._build_file(valid_header, fake_chunk + valid_chunks)
+        
+        with self.assertRaises(ValueError):
+            self.parser.parse(invalid_file)
+            
+    def test_truncated_file(self):
+        
+        valid_header = self._create_header()
+        valid_chunks = self._build_chunks(
+            chunks=[
+                Chunk(enums.ChunkType.DATA, b"Hello !"),
+                Chunk(enums.ChunkType.HASH, b"")
+            ]
+        )
+        
+        metadata_id = (0x01).to_bytes(1, "big")
+        metadata_size = (0x99).to_bytes(8, "big")
+        
+        truncated_metadata = metadata_id + metadata_size
+        
+        truncated_file = self._build_file(valid_header, truncated_metadata + valid_chunks)
+        
+        with self.assertRaises(IndexError):
+            self.parser.parse(truncated_file)
