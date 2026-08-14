@@ -1,9 +1,8 @@
 from typing import Optional
 
 from kryptos.chunk import Chunk
-from kryptos.enums import ChunkType
 from kryptos.field import Field
-from kryptos.enums import FieldType
+from kryptos.enums import ChunkType, FieldType
 
 class MetadataChunk(Chunk):
     """Represents the metadata chunk of a Kryptos file."""

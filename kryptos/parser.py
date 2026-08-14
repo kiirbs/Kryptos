@@ -120,7 +120,11 @@ class KryptosParser:
         
         cursor = header.header_size
         
-        kryptos_file = KryptosFile()
+        kryptos_file = KryptosFile(
+            version=header.version,
+            algo=header.algo,
+            flags=header.flags
+        )
         
         self._add_chunks(cursor, kryptos_file, data)
         

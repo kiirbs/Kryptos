@@ -36,6 +36,9 @@
     - [X] Serialize without chunks
     - [X] Serialize invalid file
     - [X] Serialize valid file
+    - [X] Encrypt decrypt valid file
+    - [X] Encrypt invalid file
+    - [X] Decrypt invalid file
 
 - **`Parser`**:
     - [X] Magic Number
@@ -51,5 +54,14 @@
     - [X] Unknow field type
     - [X] Corrupt metadata
     - [X] Truncated file
+
+- **`Algorithm`**:
+    - [X] Create valid algorithm
+    - [X] Empty key
+    - [X] Invalid key
+    - [X] Encrypt invalid data
+    - [X] Decrypt invalid data
+    - [X] Encrypt valid data
+    - [X] Round-trip
 
 ---

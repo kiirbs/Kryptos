@@ -108,3 +108,33 @@ class TestKryptosFile(unittest.TestCase):
             data,
             expected
         )
+        
+    def test_encrypt_decrypt_valid_file(self):
+        
+        data_chunk = self._create_valid_chunk()
+        
+        self.file.add_chunk(data_chunk)
+        self.file.add_chunk(self._create_valid_chunk(
+            chunk_type=ChunkType.HASH,
+            content=b""
+        ))
+        
+        original = data_chunk.content
+        
+        self.file.encrypt(b"key")
+
+        self.assertNotEqual(original, data_chunk.content)
+
+        self.file.decrypt(b"key")
+
+        self.assertEqual(original, data_chunk.content)
+        
+    def test_encrypt_invalid_file(self):
+        
+        with self.assertRaises(ValueError):        
+            self.file.encrypt(b"key")
+                
+    def test_decrypt_invalid_file(self):
+        
+        with self.assertRaises(ValueError):        
+            self.file.decrypt(b"key")

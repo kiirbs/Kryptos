@@ -47,14 +47,30 @@ class TestRoundTrip(unittest.TestCase):
     def test_round_trip(self):
         
         original = KryptosFile()
+        original_content = b"This is my secret message !"
+        
+        data_chunk = self._create_chunk(chunk_type=ChunkType.DATA, content=original_content)
         
         original.add_chunk(self._create_chunk(chunk_type=ChunkType.METADATA))
-        original.add_chunk(self._create_chunk(chunk_type=ChunkType.DATA, content=b"Hello !"))
+        original.add_chunk(data_chunk)
         original.add_chunk(self._create_chunk())
+        
+        original.encrypt(b"key")
         
         binary = original.serialize()
                 
         parsed = KryptosParser().parse(binary)
+        
+        parsed.decrypt(b"key")
+        
+        parsed_data = parsed.get_chunk(ChunkType.DATA)
+
+        self.assertEqual(
+            parsed_data.content,
+            original_content
+        )
+        
+        parsed.encrypt(b"key")
         
         binary2 = parsed.serialize()
         
