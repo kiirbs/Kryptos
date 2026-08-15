@@ -1,4 +1,5 @@
 import unittest
+from datetime import datetime
 
 from kryptos.kryptos_file import KryptosFile
 from kryptos.chunk import Chunk

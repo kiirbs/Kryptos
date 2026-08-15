@@ -1,6 +1,9 @@
 from typing import Optional
+from datetime import datetime
 
 from kryptos.chunk import Chunk
+from kryptos.field import Field
+from kryptos.metadata_chunk import MetadataChunk
 from kryptos import enums
 from kryptos.algorithms.algorithm import Algorithm, ALGORITHMS
 
@@ -38,6 +41,44 @@ class KryptosFile:
                 return chunk
             
         return None
+    
+    def _set_metadata_field(self, field_type: enums.FieldType, value) -> None:
+        
+        if not isinstance(value, field_type.python_type):
+            raise TypeError(
+                f"{field_type.name} expects "
+                f"{field_type.python_type.__name__}, "
+                f"got {type(value).__name__}."
+            )
+        
+        metadata = self.get_chunk(enums.ChunkType.METADATA)
+            
+        if metadata is None:
+            metadata = MetadataChunk()
+            self.add_chunk(metadata)
+        
+        field = metadata.get_field(field_type)
+        
+        if field is None:
+            metadata.add_field(
+                Field(field_type, value)
+            )
+        else:
+            field.value = value
+            
+    def _get_metadata_field_value(self, field_type: enums.FieldType):
+        
+        metadata = self.get_chunk(enums.ChunkType.METADATA)
+        
+        if metadata is None:
+            return None
+        
+        field = metadata.get_field(field_type)
+        
+        if field is None:
+            return None
+        
+        return field.value
     
     def _count_chunks(self, chunk_type: enums.ChunkType) -> int:
         
@@ -105,3 +146,54 @@ class KryptosFile:
         
         return result
         
+    def set_data(self, data: bytes) -> None:
+        
+        if not isinstance(data, bytes):
+            raise TypeError("Expected bytes.")
+        
+        data_chunk = self.get_chunk(enums.ChunkType.DATA)
+        
+        if data_chunk is not None:
+            data_chunk.content = data
+        else:
+            data_chunk = Chunk(enums.ChunkType.DATA, data)
+            self.add_chunk(data_chunk)
+            
+    def get_data(self) -> bytes:
+        
+        data_chunk = self.get_chunk(enums.ChunkType.DATA)
+
+        if data_chunk is None:
+            raise ValueError("Missing data chunk.")
+
+        return data_chunk.content
+    
+    def set_filename(self, value: str) -> None:
+        self._set_metadata_field(enums.FieldType.ORIGINAL_FILENAME, value)
+            
+    def get_filename(self) -> Optional[str]:
+        return self._get_metadata_field_value(enums.FieldType.ORIGINAL_FILENAME)
+        
+    def set_mime_type(self, value: str) -> None:
+        self._set_metadata_field(enums.FieldType.MIME_TYPE, value)
+        
+    def get_mime_type(self) -> Optional[str]:
+        return self._get_metadata_field_value(enums.FieldType.MIME_TYPE)
+    
+    def set_creation_timestamp(self, value: datetime) -> None:
+        self._set_metadata_field(enums.FieldType.CREATION_TIMESTAMP, value)
+            
+    def get_creation_timestamp(self) -> Optional[datetime]:
+        return self._get_metadata_field_value(enums.FieldType.CREATION_TIMESTAMP)
+    
+    def set_file_size(self, value: int) -> None:
+        self._set_metadata_field(enums.FieldType.ORIGINAL_FILE_SIZE, value)
+            
+    def get_file_size(self) -> Optional[int]:
+        return self._get_metadata_field_value(enums.FieldType.ORIGINAL_FILE_SIZE)
+    
+    def set_comment(self, value: str) -> None:
+        self._set_metadata_field(enums.FieldType.COMMENT, value)
+            
+    def get_comment(self) -> Optional[str]:
+        return self._get_metadata_field_value(enums.FieldType.COMMENT)
