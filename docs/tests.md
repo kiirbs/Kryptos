@@ -64,4 +64,13 @@
     - [X] Encrypt valid data
     - [X] Round-trip
 
+- **High level `API`**:
+    - [X] Get set valid data
+    - [X] Set invalid data
+    - [X] Set get valid fields
+    - [X] Update fields
+    - [X] Get missing fields
+    - [X] Metadata chunk created automatically
+    - [X] Set invalid field
+
 ---

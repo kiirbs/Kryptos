@@ -6,7 +6,7 @@ from kryptos.kryptos_file import KryptosFile
 from kryptos.chunk import Chunk
 from kryptos.metadata_chunk import MetadataChunk
 from kryptos.field import Field
-from kryptos.enums import FieldType
+from kryptos.enums import MetadataFieldType
 from kryptos.enums import ChunkType
 
 """
@@ -28,7 +28,7 @@ class TestRoundTrip(unittest.TestCase):
         
         metadata = MetadataChunk()
         
-        for field in FieldType:
+        for field in MetadataFieldType:
             value = TEST_VALUES[field.python_type]
             metadata.add_field(self._create_field(field, value))
             

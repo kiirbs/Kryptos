@@ -52,7 +52,7 @@ class TestKryptosFileAPI(unittest.TestCase):
             "Vacances"
         )
         
-    def test_update_field(self):
+    def test_update_fields(self):
         
         self.file.set_filename("photo.png")
         self.file.set_mime_type("PHOTO/png")
@@ -87,7 +87,7 @@ class TestKryptosFileAPI(unittest.TestCase):
             "My cat"
         )
         
-    def test_get_missing_field(self):
+    def test_get_missing_fields(self):
         
         self.assertIsNone(
             self.file.get_filename()

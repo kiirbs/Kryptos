@@ -41,7 +41,7 @@ class KryptosParser:
         value_start = size_start + enums.FIELD_SIZE_FIELD_SIZE
 
         field_type = data[type_start]
-        field_type = enums.FieldType.from_field_id(field_type)
+        field_type = enums.MetadataFieldType.from_field_id(field_type)
         
         value_size = data[size_start:value_start]
         value_size = int.from_bytes(value_size, "big")

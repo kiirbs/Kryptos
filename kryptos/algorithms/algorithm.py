@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
+from typing import Optional
 
 from kryptos.enums import Algo
+from kryptos.crypto_chunk import CryptoChunk
 
 class Algorithm(ABC):
     """Base class for all encryption algorithms."""
@@ -16,18 +18,18 @@ class Algorithm(ABC):
         self.key = key
         
     @abstractmethod
-    def encrypt(self, data: bytes) -> bytes:
+    def encrypt(self, data: bytes) -> tuple[bytes, Optional[CryptoChunk]]:
         """Encrypt bytes."""
         ...
         
     @abstractmethod
-    def decrypt(self, data: bytes) -> bytes:
+    def decrypt(self, data: bytes, crypto_chunk: Optional[CryptoChunk]) -> bytes:
         """Decrypt bytes."""
         ...
         
 class XORAlgorithm(Algorithm):
     
-    def encrypt(self, data: bytes) -> bytes:
+    def _xor(self, data: bytes) -> bytes:
         
         if not isinstance(data, bytes):
             raise TypeError("Expected bytes.")
@@ -37,8 +39,11 @@ class XORAlgorithm(Algorithm):
             for i, b in enumerate(data)
         )
     
-    def decrypt(self, data: bytes) -> bytes:
-        return self.encrypt(data)
+    def encrypt(self, data: bytes) -> tuple[bytes, Optional[CryptoChunk]]:
+        return self._xor(data), None
+    
+    def decrypt(self, data: bytes, crypto_chunk: Optional[CryptoChunk]) -> bytes:
+        return self._xor(data)
     
 ALGORITHMS = {
     Algo.XOR: XORAlgorithm,

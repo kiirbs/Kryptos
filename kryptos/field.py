@@ -1,10 +1,16 @@
-from kryptos.enums import FieldType
+from typing import Protocol
+
 from kryptos.serializer import SERIALIZERS
+
+class FieldDescriptor(Protocol):
+    field_id: int
+    python_type: type
 
 class Field:
     """Represents a single field inside a MetadataChunk."""
     
-    def __init__(self, field_type: FieldType, value):
+    def __init__(self, field_type: FieldDescriptor, value):
+        """Expected an enum exposing field_id and python_type."""
         
         if not isinstance(value, field_type.python_type):
             raise TypeError(

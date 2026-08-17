@@ -1,7 +1,5 @@
 import unittest
 
-from kryptos.parser import KryptosParser
-from kryptos.kryptos_file import KryptosFile
 from kryptos.chunk import Chunk
 from kryptos import enums
 

@@ -3,7 +3,7 @@ import unittest
 from kryptos.metadata_chunk import MetadataChunk
 from kryptos.field import Field
 from kryptos.enums import ChunkType
-from kryptos.enums import FieldType
+from kryptos.enums import MetadataFieldType
 
 """
 Unit tests for the Kryptos metadata chunk.
@@ -16,7 +16,7 @@ class TestMetadataChunk(unittest.TestCase):
     
     def _create_valid_field(
         self, 
-        field_type=FieldType.ORIGINAL_FILENAME, 
+        field_type=MetadataFieldType.ORIGINAL_FILENAME, 
         value="hello.txt"
     ) -> Field:
         return Field(
@@ -26,14 +26,14 @@ class TestMetadataChunk(unittest.TestCase):
         
     def _build_filename_field(self) -> bytes:
         return (
-            FieldType.ORIGINAL_FILENAME.field_id.to_bytes(1, "big")
+            MetadataFieldType.ORIGINAL_FILENAME.field_id.to_bytes(1, "big")
             + (9).to_bytes(8, "big")
             + b"hello.txt"
         )
         
     def _build_size_field(self) -> bytes:
         return (
-            FieldType.ORIGINAL_FILE_SIZE.field_id.to_bytes(1, "big")
+            MetadataFieldType.ORIGINAL_FILE_SIZE.field_id.to_bytes(1, "big")
             + (8).to_bytes(8, "big")
             + (12345).to_bytes(8, "big")
         )
@@ -50,7 +50,7 @@ class TestMetadataChunk(unittest.TestCase):
         self.metadata.add_field(self._create_valid_field())
         
         self.assertIsNotNone(
-            self.metadata.get_field(FieldType.ORIGINAL_FILENAME)
+            self.metadata.get_field(MetadataFieldType.ORIGINAL_FILENAME)
         )
     
     def test_duplicate_field(self):
@@ -64,7 +64,7 @@ class TestMetadataChunk(unittest.TestCase):
         
         self.metadata.add_field(self._create_valid_field())
         
-        field = self.metadata.get_field(FieldType.ORIGINAL_FILENAME)
+        field = self.metadata.get_field(MetadataFieldType.ORIGINAL_FILENAME)
         
         self.assertIsInstance(field, Field)
         
@@ -72,7 +72,7 @@ class TestMetadataChunk(unittest.TestCase):
 
         self.assertEqual(
             field.field_type,
-            FieldType.ORIGINAL_FILENAME
+            MetadataFieldType.ORIGINAL_FILENAME
         )
 
         self.assertEqual(
@@ -82,7 +82,7 @@ class TestMetadataChunk(unittest.TestCase):
     
     def test_get_unknown_field(self):
         
-        field = self.metadata.get_field(FieldType.COMMENT)
+        field = self.metadata.get_field(MetadataFieldType.COMMENT)
         
         self.assertIsNone(field)
     
@@ -116,7 +116,7 @@ class TestMetadataChunk(unittest.TestCase):
         
         self.metadata.add_field(self._create_valid_field())
         self.metadata.add_field(self._create_valid_field(
-            field_type=FieldType.ORIGINAL_FILE_SIZE,
+            field_type=MetadataFieldType.ORIGINAL_FILE_SIZE,
             value=12345
         ))
         

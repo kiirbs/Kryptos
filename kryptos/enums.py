@@ -14,13 +14,34 @@ class ChunkType(Enum):
     METADATA = 0x01
     DATA = 0x02
     HASH = 0x03
+    CRYPTO = 0x04
     
-class FieldType(Enum):        
+class MetadataFieldType(Enum):
+          
     ORIGINAL_FILENAME = (0x01, str)
     MIME_TYPE = (0x02, str)
     CREATION_TIMESTAMP = (0x03, datetime)
     ORIGINAL_FILE_SIZE = (0x04, int)
     COMMENT = (0x05, str)
+    
+    def __init__(self, field_id, python_type):
+        self.field_id = field_id
+        self.python_type = python_type
+        
+    @classmethod
+    def from_field_id(cls, field_id):
+        
+        for field_type in cls:
+            if field_type.field_id == field_id:
+                return field_type
+            
+        raise ValueError(
+            f"Unknown field ID: {field_id:#04x}."
+        )
+        
+class CryptoFieldType(Enum):
+    
+    NONCE = (0x01, bytes)
     
     def __init__(self, field_id, python_type):
         self.field_id = field_id

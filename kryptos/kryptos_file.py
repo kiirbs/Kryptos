@@ -42,7 +42,15 @@ class KryptosFile:
             
         return None
     
-    def _set_metadata_field(self, field_type: enums.FieldType, value) -> None:
+    def remove_chunk(self, chunk_type: enums.ChunkType):
+        """Remove the chunk with the corresponding type."""
+        
+        for chunk in self.chunks:
+            if chunk.chunk_type == chunk_type:
+                self.chunks.remove(chunk)
+                return
+    
+    def _set_metadata_field(self, field_type: enums.MetadataFieldType, value) -> None:
         
         if not isinstance(value, field_type.python_type):
             raise TypeError(
@@ -66,7 +74,7 @@ class KryptosFile:
         else:
             field.value = value
             
-    def _get_metadata_field_value(self, field_type: enums.FieldType):
+    def _get_metadata_field_value(self, field_type: enums.MetadataFieldType):
         
         metadata = self.get_chunk(enums.ChunkType.METADATA)
         
@@ -115,8 +123,14 @@ class KryptosFile:
         data_chunk = self.get_chunk(enums.ChunkType.DATA)
         assert data_chunk is not None
         
-        data_chunk.content = algorithm.encrypt(data_chunk.content)
+        encrypted, crypto_chunk = algorithm.encrypt(data_chunk.content)
+        data_chunk.content = encrypted
         
+        self.remove_chunk(enums.ChunkType.CRYPTO)
+        
+        if crypto_chunk is not None:
+            self.add_chunk(crypto_chunk)
+    
     def decrypt(self, key: bytes) -> None:
         
         if not self.validate():
@@ -127,7 +141,12 @@ class KryptosFile:
         data_chunk = self.get_chunk(enums.ChunkType.DATA)
         assert data_chunk is not None
         
-        data_chunk.content = algorithm.decrypt(data_chunk.content)
+        crypto_chunk = self.get_chunk(enums.ChunkType.CRYPTO)
+        
+        data_chunk.content = algorithm.decrypt(
+            data_chunk.content,
+            crypto_chunk
+        )
         
     def serialize(self) -> bytes:
         """Serialize the complete Kryptos file."""
@@ -169,31 +188,31 @@ class KryptosFile:
         return data_chunk.content
     
     def set_filename(self, value: str) -> None:
-        self._set_metadata_field(enums.FieldType.ORIGINAL_FILENAME, value)
+        self._set_metadata_field(enums.MetadataFieldType.ORIGINAL_FILENAME, value)
             
     def get_filename(self) -> Optional[str]:
-        return self._get_metadata_field_value(enums.FieldType.ORIGINAL_FILENAME)
+        return self._get_metadata_field_value(enums.MetadataFieldType.ORIGINAL_FILENAME)
         
     def set_mime_type(self, value: str) -> None:
-        self._set_metadata_field(enums.FieldType.MIME_TYPE, value)
+        self._set_metadata_field(enums.MetadataFieldType.MIME_TYPE, value)
         
     def get_mime_type(self) -> Optional[str]:
-        return self._get_metadata_field_value(enums.FieldType.MIME_TYPE)
+        return self._get_metadata_field_value(enums.MetadataFieldType.MIME_TYPE)
     
     def set_creation_timestamp(self, value: datetime) -> None:
-        self._set_metadata_field(enums.FieldType.CREATION_TIMESTAMP, value)
+        self._set_metadata_field(enums.MetadataFieldType.CREATION_TIMESTAMP, value)
             
     def get_creation_timestamp(self) -> Optional[datetime]:
-        return self._get_metadata_field_value(enums.FieldType.CREATION_TIMESTAMP)
+        return self._get_metadata_field_value(enums.MetadataFieldType.CREATION_TIMESTAMP)
     
     def set_file_size(self, value: int) -> None:
-        self._set_metadata_field(enums.FieldType.ORIGINAL_FILE_SIZE, value)
+        self._set_metadata_field(enums.MetadataFieldType.ORIGINAL_FILE_SIZE, value)
             
     def get_file_size(self) -> Optional[int]:
-        return self._get_metadata_field_value(enums.FieldType.ORIGINAL_FILE_SIZE)
+        return self._get_metadata_field_value(enums.MetadataFieldType.ORIGINAL_FILE_SIZE)
     
     def set_comment(self, value: str) -> None:
-        self._set_metadata_field(enums.FieldType.COMMENT, value)
+        self._set_metadata_field(enums.MetadataFieldType.COMMENT, value)
             
     def get_comment(self) -> Optional[str]:
-        return self._get_metadata_field_value(enums.FieldType.COMMENT)
+        return self._get_metadata_field_value(enums.MetadataFieldType.COMMENT)

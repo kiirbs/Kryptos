@@ -34,21 +34,22 @@ class TestXORAlgorithm(unittest.TestCase):
         algorithm = self.algorithm_type(b"key")
         
         with self.assertRaises(TypeError):
-            algorithm.encrypt("Hello !")
+            cipher, crypto = algorithm.encrypt("Hello !")
             
     def test_decrypt_invalid_data(self):
         
         algorithm = self.algorithm_type(b"key")
         
         with self.assertRaises(TypeError):
-            algorithm.decrypt("Hello !")
+            cipher, crypto = algorithm.decrypt("Hello !")
             
     def test_encrypt_valid_data(self):
         
         algorithm = self.algorithm_type(b"key")
         
-        cipher = algorithm.encrypt(b"Hello !")
+        cipher, crypto = algorithm.encrypt(b"Hello !")
         
+        self.assertIsNone(crypto)
         self.assertIsInstance(cipher, bytes)
         self.assertNotEqual(cipher, b"Hello !")
         
@@ -58,8 +59,9 @@ class TestXORAlgorithm(unittest.TestCase):
         
         plain = b"Hello Kryptos!"
         
-        cipher = algorithm.encrypt(plain)
+        cipher, crypto = algorithm.encrypt(plain)
         
-        result = algorithm.decrypt(cipher)
+        result = algorithm.decrypt(cipher, crypto)
         
+        self.assertIsNone(crypto)
         self.assertEqual(plain, result)
