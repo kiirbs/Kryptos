@@ -19,6 +19,7 @@ A secret between two is a secret of God, a secret among three is everybody's sec
 - Serializer
 - Unit tests
 - XOR
+- ChaCha20-Poly1305
 
 ---
 
@@ -34,6 +35,7 @@ A secret between two is a secret of God, a secret among three is everybody's sec
 ## RFC
 
 See the [RFC-KPT-0001](docs/RFC-KPT-0001.md) for the complete file format specification.
+See the [RFC-KPT-0002](docs/RFC-KPT-0002.md) for the identity protocol definition.
 
 ---
 

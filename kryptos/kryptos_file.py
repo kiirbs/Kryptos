@@ -130,7 +130,7 @@ class KryptosFile:
         
         if crypto_chunk is not None:
             self.add_chunk(crypto_chunk)
-    
+
     def decrypt(self, key: bytes) -> None:
         
         if not self.validate():

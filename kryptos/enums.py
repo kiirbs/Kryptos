@@ -42,6 +42,7 @@ class MetadataFieldType(Enum):
 class CryptoFieldType(Enum):
     
     NONCE = (0x01, bytes)
+    AUTH_TAG = (0x02, bytes)
     
     def __init__(self, field_id, python_type):
         self.field_id = field_id
