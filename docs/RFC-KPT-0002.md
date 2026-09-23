@@ -761,19 +761,27 @@ A later unexpected `Root` change **MUST** be reported as a trust state change an
 ### 20. Open Questions
 
 #### OQ-001
+
 Initial RootRecord authority ?
+
 ---
 
 #### OQ-002
+
 IdentityComponent lifecycle / derivation ?
+
 ---
 
 #### OQ-003
+
 ConflictResolution authority ?
+
 ---
 
 #### OQ-004
+
 For a cycle, delete the entier `Event` or just the relation ?
+
 ---
 
 ### 21. Future Extensions
