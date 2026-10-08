@@ -133,16 +133,17 @@ Global pattern:
 
 Definition:
 - `Event ID`
-- `Version`
-- `Identity ID`
 - `Created At`
 - `Root ID`
 - `Algorithm`
 - `Public Key`
-- `Signature`
 
 Established the original Root for an identity. 
 RootRecord is **not** necessarily the current Root.
+
+The initial Root of an Identity is established by a self-authenticated RootRecord. The Root signs the canonical representation of its own RootRecord. Trust in the Root is established independently through TrustBootstrap.
+
+The creation of an identity does **not** need to be validated by a global authority.
 
 ---
 
@@ -155,32 +156,30 @@ ROOT_A ->  SUCCESSION   -> ROOT_B
 ```
 
 Definition:
-- `Previous Root ID`
 - `New Root ID`
 - `New Public Key`
 - `New Algorithm`
 - `Succession Type`
 - `Effective At`
 - `Context`
-- `Signature`
 
 A `Root` **MAY** have multiple competing succession `Events` in the journal, but at most one successor branch may be selected as current.
 
 Multiple valid competing successors create a `CONFLICT`.
+
+For a `RootSuccession`, the `Issuer` **MUST** be the predecessor Root.
 
 ---
 
 #### 7.3 KeyDelegation
 
 Definition:
-- `Issuer Root`
-- `Component`
+- `Component ID`
 - `Role`
 - `Permissions`
 - `Issued At`
 - `Expires At`
 - `Context`
-- `Signature`
 
 A `KeyDelegation` may remain historically valid while becoming inactive in the current state.
 
@@ -191,12 +190,10 @@ A delegation issued by a historical `Root` does not become invalid solely becaus
 #### 7.4 KeyRevocation
 
 Definition:
-- `Issuer Root`
-- `Component`
+- `Component ID`
 - `Reason`
 - `Revoked At`
 - `Context`
-- `Signature`
 
 When applicable, a `KeyRevocation` causes the current effect state of the referenced Component to become `REVOKED`.
 
@@ -206,17 +203,26 @@ When applicable, a `KeyRevocation` causes the current effect state of the refere
 
 Definition:
 - `Event ID`
-- `Version`
-- `Identity ID`
 - `Created At`
 - `Conflict ID`
 - `Resolution Type`
 - `Selected Event ID`
 - `Context`
-- `Signature`
 
 `Conflict ID` identifies the conflict.
 `Selected Event ID` identifies the selected branch.
+
+---
+
+#### 7.6 IdentityComponent
+
+Definition:
+- `Component ID`
+- `Algorithm`
+- `Public Key`
+- `Parameters`
+
+**`Issuer = Root`**
 
 ---
 
@@ -235,6 +241,7 @@ KryptosEvent
 ├── Version
 ├── Identity ID
 ├── Created At
+├── Issuer
 ├── Payload
 └── Signature
 ```
@@ -243,6 +250,7 @@ KryptosEvent
 - `Event Type`: indicate the Event type.
 - `Identity ID`: The ID of identity for which the event is valid.
 - `Created At`: Creation timestamp.
+- `Issuer`: Identifies the cryptographic authority that issued the Event.
 - `Payload`: Content depends on the Event Type.
 - `Signature`: Used to verify authenticity.
 
@@ -742,19 +750,22 @@ A later unexpected `Root` change **MUST** be reported as a trust state change an
 ### 19. Invariants
 
 - Events are immutable.
-- Every event has an Event ID.
-- Events belong to exactly one Identity ID.
+- Every event has an `Event ID`.
+- Events belong to exactly one `Identity ID`.
 - Reception order does not define logical order.
 - `INVALID` events cannot become `VALID`.
 - `INCOMPLETE` events may become `VALID`.
 - A conflict **MUST NOT** be silently resolved.
 - Conflicting branches **MUST NOT** be deleted.
-- Dependents of unresolved conflicts are BLOCKED.
+- Dependents of unresolved conflicts are `BLOCKED`.
 - ConflictResolution is itself an authenticated event.
 - Re-evaluation propagates to affected dependents.
 - Causal dependencies **MUST NOT** form cycles.
 - Trust is not inferred solely from cryptographic validity.
-- Private keys **MUST NOT** be stored in IdentityStore.
+- Private keys **MUST NOT** be stored in `IdentityStore`.
+- The protocol requires a **verifiable cryptographic signature** and specifies the algorithm used; the cryptographic suites and their parameters are defined in a dedicated cryptographic specification.
+- The recovery capability **MUST** remain usable when the root it is intended to replace is compromised.
+- Authorization state is monotonic with respect to quorum satisfaction: once an operation has satisfied its required authorization threshold, a later revocation **cannot** reduce the already satisfied authorization quorum.
 
 ---
 
@@ -764,11 +775,31 @@ A later unexpected `Root` change **MUST** be reported as a trust state change an
 
 Initial RootRecord authority ?
 
+PROPOSED RESOLUTION:
+
+The initial RootRecord is self-authenticated by the private key corresponding to the Root public key contained in the RootRecord.
+
+Trust in the Root is established separately through TrustBootstrap and TrustManager.
+
 ---
 
 #### OQ-002
 
-IdentityComponent lifecycle / derivation ?
+IdentityComponent lifecycle and authorization model ?
+
+PROPOSED RESOLUTION:
+
+`IdentityComponent` is an autonomous Event in the Identity Journal.
+
+A valid `IdentityComponent` Event establishes the existence and cryptographic identity of an operational Component.
+
+A `KeyDelegation` separately grants operational authority to the Component.
+
+The `Issuer` of an `IdentityComponent` is a Root authorized to create Components.
+
+A Component created by a historical Root remains historically valid, but its current operational effect is determined by the protocol's applicability rules.
+
+The exact authorization rules governing Component creation remain to be defined.
 
 ---
 
@@ -776,11 +807,183 @@ IdentityComponent lifecycle / derivation ?
 
 ConflictResolution authority ?
 
+PROPOSED RESOLUTION:
+
+The Root is the primary authority of an Identity.
+
+A dedicated Recovery Component MAY be granted explicit recovery permissions such as `ROOT_SUCCESSION` and `CONFLICT_RESOLUTION`.
+
+A Recovery authority MUST be established before the failure or compromise of the Root it is intended to recover.
+
+The exact rules governing the protection, revocation, precedence, and authority of Recovery Components remain to be defined.
+
 ---
 
 #### OQ-004
 
-For a cycle, delete the entier `Event` or just the relation ?
+How should a causal dependency cycle be classified ?
+
+---
+
+#### OQ-005 
+
+Recovery Key Revocation Authority ?
+
+PROPOSED RESOLUTION:
+
+RECOVERY_MANAGEMENT
++
+threshold 2-of-N
+
+---
+
+#### OQ-006 
+
+Recovery Authority Multiplicity ?
+
+PROPOSED RESOLUTION:
+
+Recovery Components are independent cryptographic Components.
+Their permissions are explicitly delegated and should not be implicitly shared or inherited.
+
+A dedicated recovery-management permission may be used to revoke Recovery Components without relying on the Root.
+
+Recovery Components indépendants
++
+permissions explicitement séparées
++
+politiques de seuil par opération
+
+---
+
+#### OQ-007
+
+Threshold Policy ?
+
+---
+
+#### OQ-008
+
+Recovery Authority Set Management ?
+How is the Recovery Authority Set initialized, modified, and protected? Which authorities are eligible to add or remove Recovery Components, and what authorization threshold is required ?
+
+PROPOSED RESOLUTION:
+
+1. The initial Recovery Authority Set is established during identity bootstrap because no Recovery Authority exists yet.
+
+2. Bootstrap must establish enough Recovery Authorities to satisfy all mandatory Recovery policies.
+
+3. After bootstrap, Root cannot unilaterally modify the Recovery Authority Set.
+
+4. Add/remove operations affecting the Recovery Authority Set require RECOVERY_MANAGEMENT authorization according to the applicable threshold policy.
+
+5. A Set modification must not leave the identity unable to satisfy mandatory Recovery policies.
+
+---
+
+#### OQ-009
+
+How should threshold-based authorization be represented in the event journal, and how are individual Authorization Events associated with the operation they authorize ?
+
+PROPOSED RESOLUTION:
+
+Threshold-based authorization is represented using independent Authorization Events.
+
+Each Authorization Event:
+- is signed by one authorized Component;
+- references exactly one Operation ID;
+- is independently verifiable;
+- contributes at most once to the authorization threshold of that
+  operation.
+
+The authorization threshold is evaluated over the set of distinct, eligible authorities that have issued valid Authorization Events for the operation.
+
+Authorization Events remain immutable and are not modified or marked as consumed when their authorization is used.
+
+---
+
+#### OQ-010
+
+How should an Authorization Event identify the authority set and authorization policy applicable to the operation at the time the authorization is issued ?
+
+PROPOSED RESOLUTION:
+
+Each threshold-based operation is bound to an immutable authorization context.
+
+The authorization context identifies the Recovery Authority Set and the authorization policy applicable to the operation.
+
+Authorization Events must be evaluated against the authorization context of the operation and cannot implicitly adopt later changes to the authority set or authorization policy.
+
+Changes to the Recovery Authority Set or its authorization policies therefore affect future operations unless explicitly defined otherwise by the protocol.
+
+---
+
+#### OQ-011
+
+How does the revocation of an authority affect previously issued Authorization Events, particularly when the authorized operation has not yet reached its required threshold?
+
+How are concurrent authorization and revocation events handled?
+
+PROPOSED RESOLUTION:
+
+An Authorization Event is historically valid if its issuer was authorized to perform the corresponding operation within the applicable authorization context when the event was issued.
+
+A later revocation does not invalidate an Authorization Event historically.
+
+However, until an operation has satisfied its required authorization threshold, a revoked authority must no longer be able to provide a new authorization contribution to that operation.
+
+Once the required authorization threshold has been satisfied, the authorization quorum is not retroactively invalidated by a later revocation.
+
+Concurrent authorization and revocation events must be evaluated using the event graph, authorization context, and causal dependencies, not Created At alone.
+
+---
+
+#### OQ-012
+
+Who may create an OperationRequest, and are any operation types restricted to specific proposers?
+
+PROPOSED RESOLUTION:
+
+
+
+---
+
+#### OQ-013
+
+How is the immutable authorization context of an OperationRequest anchored to a specific Recovery Authority Set state and authorization policy state?
+
+PROPOSED RESOLUTION:
+
+An OperationRequest references an immutable Authority Context ID.
+
+The Authority Context ID is derived from the canonical representation of the complete authority state relevant to protected Recovery operations.
+
+When a context-modifying OperationRequest becomes READY, its protocol-defined Effect is deterministically applied to the referenced authority context.
+
+IdentityStore reconstructs the resulting authority state and computes a new Authority Context ID from its canonical representation.
+
+No additional state-transition event is required if the resulting state is fully and deterministically derivable from the READY OperationRequest and its dependencies.
+
+---
+
+#### OQ-014
+
+How is the authorization policy applicable to an operation determined and verified, and how is an invalid or unauthorized policy declaration handled?
+
+PROPOSED RESOLUTION:
+
+The authorization policy applicable to an OperationRequest is not chosen by the operation creator.
+
+It is deterministically resolved from:
+- Operation Type + referenced Authority Context
+
+An OperationRequest does not redefine its required permission or authorization threshold.
+
+The referenced Authority Context must itself be valid and applicable to the operation.
+
+Historical authority contexts cannot be reused to bypass later authority or policy changes.
+
+Concurrent operations legitimately derived from the same applicable context may create competing context branches and are handled through the normal conflict-resolution mechanism.
 
 ---
 
