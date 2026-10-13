@@ -773,21 +773,29 @@ A later unexpected `Root` change **MUST** be reported as a trust state change an
 
 #### OQ-001
 
+**RESOLVED**
+
 Initial RootRecord authority ?
 
-PROPOSED RESOLUTION:
+*RESOLUTION:*
 
 The initial RootRecord is self-authenticated by the private key corresponding to the Root public key contained in the RootRecord.
 
-Trust in the Root is established separately through TrustBootstrap and TrustManager.
+The initial RootRecord is referenced by the unique IdentityBootstrap that establishes the identity genesis.
+
+Self-authentication proves control of the Root private key but does not establish external trust.
+
+Trust in the identity genesis is established separately through TrustBootstrap and TrustManager.
 
 ---
 
 #### OQ-002
 
+**RESOLVED**
+
 IdentityComponent lifecycle and authorization model ?
 
-PROPOSED RESOLUTION:
+*RESOLUTION:*
 
 `IdentityComponent` is an autonomous Event in the Identity Journal.
 
@@ -799,49 +807,65 @@ The `Issuer` of an `IdentityComponent` is a Root authorized to create Components
 
 A Component created by a historical Root remains historically valid, but its current operational effect is determined by the protocol's applicability rules.
 
-The exact authorization rules governing Component creation remain to be defined.
+The Root is authorized to create ordinary IdentityComponent Events.
+
+Creation of an IdentityComponent establishes only its existence and cryptographic identity.
+
+Creating a Component does not implicitly grant operational permissions or membership in a protected authority set.
+
+Protected Recovery or Emergency authority membership is governed by the applicable authority-context rules and cannot be granted unilaterally by the Root after bootstrap.
 
 ---
 
 #### OQ-003
 
+**RESOLVED**
+
 ConflictResolution authority ?
 
-PROPOSED RESOLUTION:
+*RESOLUTION:*
 
-The Root is the primary authority of an Identity.
+ConflictResolution is authorized by Components eligible for the CONFLICT_RESOLUTION permission within the applicable Authority Context.
 
-A dedicated Recovery Component MAY be granted explicit recovery permissions such as `ROOT_SUCCESSION` and `CONFLICT_RESOLUTION`.
+The authorization threshold is a strict majority:
+- floor(N / 2) + 1
+with at least three eligible Conflict Resolution Authorities.
 
-A Recovery authority MUST be established before the failure or compromise of the Root it is intended to recover.
-
-The exact rules governing the protection, revocation, precedence, and authority of Recovery Components remain to be defined.
+Conflict Resolution Authorities SHOULD be cryptographically independent from Root Succession Authorities.
 
 ---
 
 #### OQ-004
 
+**OPEN**
+
 How should a causal dependency cycle be classified ?
+
+*RESOLUTION:*
+
+
 
 ---
 
 #### OQ-005 
 
+**RESOLVED**
+
 Recovery Key Revocation Authority ?
 
-PROPOSED RESOLUTION:
+*RESOLUTION:*
 
-RECOVERY_MANAGEMENT
-+
-threshold 2-of-N
+MANAGE_RECOVERY + threshold 2-of-N
 
 ---
 
 #### OQ-006 
 
+**RESOLVED**
+
 Recovery Authority Multiplicity ?
 
-PROPOSED RESOLUTION:
+*RESOLUTION:*
 
 Recovery Components are independent cryptographic Components.
 Their permissions are explicitly delegated and should not be implicitly shared or inherited.
@@ -854,20 +878,51 @@ permissions explicitement séparées
 +
 politiques de seuil par opération
 
+Authority membership is independent from Component existence and ordinary delegation.
+
 ---
 
 #### OQ-007
 
+**PROPOSED**
+
 Threshold Policy ?
+
+*RESOLUTION:*
+
+`ROOT_SUCCESSION`:
+- 2-of-N
+- N >= 3
+
+`ADD_RECOVERY_AUTHORITY`:
+- 2-of-N
+
+`REMOVE_RECOVERY_AUTHORITY`:
+- 2-of-N
+
+`CONFLICT_RESOLUTION`:
+- floor(N/2) + 1
+- N >= 3
+
+`ESCALATED_RECOVERY`:
+- 2-of-3
+
+`MANAGE_EMERGENCY`:
+- 2-of-3
+
+Conflict Resolution Authorities SHOULD be cryptographically independent from Root Succession Authorities.
+A Conflict Resolution Authority MUST NOT authorize more than one mutually incompatible ConflictResolution operation for the same Conflict ID under the same Authorization Context.
 
 ---
 
 #### OQ-008
 
+**RESOLVED**
+
 Recovery Authority Set Management ?
 How is the Recovery Authority Set initialized, modified, and protected? Which authorities are eligible to add or remove Recovery Components, and what authorization threshold is required ?
 
-PROPOSED RESOLUTION:
+*RESOLUTION:*
 
 1. The initial Recovery Authority Set is established during identity bootstrap because no Recovery Authority exists yet.
 
@@ -879,13 +934,21 @@ PROPOSED RESOLUTION:
 
 5. A Set modification must not leave the identity unable to satisfy mandatory Recovery policies.
 
+6. Minimum size >= 3.
+
+7. Membership in the Recovery Authority Set is a protected property and is not implied by Component creation or ordinary KeyDelegation.
+
+8. The Recovery Authority Set MUST contain enough eligible authorities to satisfy all mandatory Recovery policies and MUST NOT be modified into an unusable state.
+
 ---
 
 #### OQ-009
 
+**RESOLVED**
+
 How should threshold-based authorization be represented in the event journal, and how are individual Authorization Events associated with the operation they authorize ?
 
-PROPOSED RESOLUTION:
+*RESOLUTION:*
 
 Threshold-based authorization is represented using independent Authorization Events.
 
@@ -900,13 +963,17 @@ The authorization threshold is evaluated over the set of distinct, eligible auth
 
 Authorization Events remain immutable and are not modified or marked as consumed when their authorization is used.
 
+Multiple Authorization Events issued by the same authority for the same operation contribute only once to the threshold.
+
 ---
 
 #### OQ-010
 
+**RESOLVED**
+
 How should an Authorization Event identify the authority set and authorization policy applicable to the operation at the time the authorization is issued ?
 
-PROPOSED RESOLUTION:
+*RESOLUTION:*
 
 Each threshold-based operation is bound to an immutable authorization context.
 
@@ -920,11 +987,13 @@ Changes to the Recovery Authority Set or its authorization policies therefore af
 
 #### OQ-011
 
+**RESOLVED**
+
 How does the revocation of an authority affect previously issued Authorization Events, particularly when the authorized operation has not yet reached its required threshold?
 
 How are concurrent authorization and revocation events handled?
 
-PROPOSED RESOLUTION:
+*RESOLUTION:*
 
 An Authorization Event is historically valid if its issuer was authorized to perform the corresponding operation within the applicable authorization context when the event was issued.
 
@@ -936,23 +1005,41 @@ Once the required authorization threshold has been satisfied, the authorization 
 
 Concurrent authorization and revocation events must be evaluated using the event graph, authorization context, and causal dependencies, not Created At alone.
 
+A revoked authority cannot contribute to a threshold that had not already been satisfied before its revocation became applicable.
+
 ---
 
 #### OQ-012
 
-Who may create an OperationRequest, and are any operation types restricted to specific proposers?
+**RESOLVED**
 
-PROPOSED RESOLUTION:
+Who may create an OperationRequest, and should the right to propose an operation be restricted independently from the right to authorize it ?
 
+*RESOLUTION:*
 
+Creating an OperationRequest does not authorize or execute the operation.
+
+Proposal authority is distinct from authorization authority.
+
+By default, an OperationRequest MAY be proposed without requiring the permissions necessary to authorize its execution.
+
+The applicable protocol rules MAY restrict proposal authority for specific Operation Types where required.
+
+The creator of an OperationRequest does not implicitly contribute an Authorization Event, even if the creator is itself an eligible authority.
+
+Execution remains dependent on the applicable authorization policy, valid Authorization Events, required dependencies, and conflict resolution.
+
+Resource-abuse protections such as rate limiting, storage admission, and peer filtering are implementation or transport concerns and do not replace cryptographic authorization rules.
 
 ---
 
 #### OQ-013
 
+**RESOLVED**
+
 How is the immutable authorization context of an OperationRequest anchored to a specific Recovery Authority Set state and authorization policy state?
 
-PROPOSED RESOLUTION:
+*RESOLUTION:*
 
 An OperationRequest references an immutable Authority Context ID.
 
@@ -964,13 +1051,19 @@ IdentityStore reconstructs the resulting authority state and computes a new Auth
 
 No additional state-transition event is required if the resulting state is fully and deterministically derivable from the READY OperationRequest and its dependencies.
 
+The Authority Context ID is a cryptographic hash of a canonical, deterministically ordered representation of the complete relevant authority state.
+
+An Event ID identifies an Event or transition, whereas an Authority Context ID identifies the resulting authority state. These concepts MUST NOT be conflated.
+
 ---
 
 #### OQ-014
 
+**RESOLVED**
+
 How is the authorization policy applicable to an operation determined and verified, and how is an invalid or unauthorized policy declaration handled?
 
-PROPOSED RESOLUTION:
+*RESOLUTION:*
 
 The authorization policy applicable to an OperationRequest is not chosen by the operation creator.
 
@@ -984,6 +1077,122 @@ The referenced Authority Context must itself be valid and applicable to the oper
 Historical authority contexts cannot be reused to bypass later authority or policy changes.
 
 Concurrent operations legitimately derived from the same applicable context may create competing context branches and are handled through the normal conflict-resolution mechanism.
+
+A causally obsolete context cannot be reused to bypass a newer applicable policy.
+
+Operations legitimately created concurrently from the same previously applicable context are not considered obsolete solely because another branch later becomes known.
+
+---
+
+#### OQ-015
+
+**PROPOSED**
+
+How should the protocol handle multiple mutually incompatible ConflictResolution operations for the same Conflict ID, particularly when multiple resolution quorums are satisfied due to authority equivocation?
+
+*RESOLUTION:*
+
+ConflictResolution uses a strict-majority authorization threshold to guarantee quorum intersection.
+
+A Conflict Resolution Authority MUST NOT authorize multiple mutually incompatible resolutions for the same Conflict ID under the same Authorization Context.
+
+Such behavior constitutes detectable authority equivocation.
+
+Conflicting sufficiently-authorized ConflictResolution operations MUST NOT be recursively resolved through ordinary ConflictResolution.
+The affected state remains blocked until an explicitly defined higher-level recovery rule applies (`ESCALATED_RECOVERY`).
+
+---
+
+#### OQ-016
+
+**PROPOSED**
+
+How should the protocol recover when the normal ConflictResolution mechanism itself produces conflicting sufficiently-authorized resolutions?
+
+*RESOLUTION:*
+
+Escalated Recovery is an exceptional, human-mediated re-bootstrap mechanism used when the normal ConflictResolution layer itself becomes inconsistent.
+
+It is authorized by a cryptographically independent Emergency Authority Set using a dedicated ESCALATED_RECOVERY permission.
+
+Escalated Recovery is only applicable when a protocol-defined escalation condition exists, such as conflicting sufficiently-authorized ConflictResolution operations.
+
+A successful Escalated Recovery does not select one of the conflicting Root branches. It establishes a fresh Root and a fresh normal Recovery Authority Context while preserving the previous history as immutable evidence.
+
+Emergency authorities SHOULD be maintained independently and in colder storage than normal Recovery authorities.
+
+The default V1 Emergency Authority Set contains at least three independent Emergency Authorities.
+
+ESCALATED_RECOVERY requires a 2-of-3 authorization threshold in the default V1 configuration.
+
+A valid protocol-defined escalation condition is mandatory in addition to the authorization quorum.
+
+A successful Escalated Recovery establishes a fresh Root and fresh normal Recovery Authority Context without selecting either conflicting Root branch.
+
+The Identity ID remains unchanged.
+
+The exact cryptographic constructions are defined by RFC-KPT-0003.
+
+---
+
+#### OQ-017
+
+**PROPOSED**
+
+Emergency Authority Governance ? Identity Bootstrap ?
+
+*RESOLUTION:*
+
+Emergency Authority Set is established during bootstrap.
+
+After bootstrap:
+- Root cannot modify it
+- Recovery cannot modify it
+- Emergency Set self-governs
+
+Permissions:
+- ESCALATED_RECOVERY
+- MANAGE_EMERGENCY
+- and nothing else
+
+MANAGE_EMERGENCY = 2-of-3
+Minimum members = 3
+
+Losing >= 2 of 3 may make final recovery impossible: accepted terminal risk.
+
+Identity Bootstrap is a unique genesis procedure that atomically establishes the Identity ID, initial Root, initial Recovery Authority Context, and initial Emergency Authority Context.
+
+The bootstrap is the only phase in which these initial authority sets may be established without pre-existing Recovery or Emergency authorization.
+
+Once the bootstrap becomes READY, the bootstrap exception is permanently closed. Root, Recovery, and Emergency governance subsequently follow their normal independent authorization rules.
+
+Initial authority members must provide proof of possession of their corresponding private keys, and bootstrap configuration must satisfy protocol-defined minimum safety constraints.
+
+IdentityBootstrap authentication does not establish external trust; TrustBootstrap remains a separate process.
+
+---
+
+#### OQ-018
+
+**RESOLVED**
+
+How should the protocol handle multiple distinct valid IdentityBootstrap events claiming the same Identity ID?
+
+*RESOLUTION:*
+
+An Identity ID has exactly one accepted genesis.
+
+Multiple distinct valid IdentityBootstrap events claiming the same Identity ID constitute a genesis ambiguity and MUST NOT be resolved using Root, Recovery, ConflictResolution, or Emergency authorities derived from either competing bootstrap.
+
+Reception order, timestamps, Event ID ordering, or other arbitrary deterministic tie-breakers MUST NOT select a genesis.
+
+Genesis selection requires an external TrustBootstrap decision or an already-established trusted genesis.
+
+Until a trusted genesis is established, the identity remains blocked.
+
+Competing valid bootstraps constitute GENESIS_CONFLICT (or an equivalent dedicated global state).
+
+Normal ConflictResolution and Escalated Recovery MUST NOT resolve a Genesis Conflict because their authority domains derive from the competing bootstraps themselves.
 
 ---
 
